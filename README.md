@@ -65,11 +65,10 @@ struct ImagePickerViewExampleView: View {
                 }
             }
         }
-        .fullScreenCover(isPresented: $isImagePickerViewPresented) {
-            ImagePickerView(allowsEditing: true, delegate: ImagePickerView.Delegate(didCancel: {
-                isImagePickerViewPresented = false
+        .sheet(isPresented: $isImagePickerViewPresented) {
+            ImagePickerView(allowsEditing: true, delegate: ImagePickerView.Delegate(isPresented: $isImagePickerViewPresented, didCancel: {
+                print("Did cancel picking image")
             }, didSelect: { (image) in
-                isImagePickerViewPresented = false
                 pickedImage = image
             }))
         }

@@ -34,13 +34,13 @@ extension ImagePickerView {
     
     public class Delegate: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         
-        public init(
-            didCancel: @escaping () -> (),
-            didSelect: @escaping (UIImage) -> ()) {
+        public init(isPresented: Binding<Bool>, didCancel: @escaping () -> (), didSelect: @escaping (UIImage) -> ()) {
+            self._isPresented = isPresented
             self.didCancel = didCancel
             self.didSelect = didSelect
         }
         
+        @Binding var isPresented: Bool
         private let didCancel: () -> ()
         private let didSelect: (UIImage) -> ()
         
@@ -51,10 +51,12 @@ extension ImagePickerView {
             } else if let originalImage = info[.originalImage] as? UIImage {
                 selectedImage = originalImage
             }
+            isPresented = false
             didSelect(selectedImage)
         }
         
         public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            isPresented = false
             didCancel()
         }
     }
