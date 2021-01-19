@@ -39,15 +39,17 @@ public struct ImagePickerView: UIViewControllerRepresentable {
 extension ImagePickerView {
     public class Delegate: NSObject, PHPickerViewControllerDelegate {
         
-        public init(isPresented: Binding<Bool>, didCancel: @escaping (PHPickerViewController) -> (), didSelect: @escaping (ImagePickerResult) -> ()) {
+        public init(isPresented: Binding<Bool>, didCancel: @escaping (PHPickerViewController) -> (), didSelect: @escaping (ImagePickerResult) -> (), didFail: @escaping (ImagePickerError) -> ()) {
             self._isPresented = isPresented
             self.didCancel = didCancel
             self.didSelect = didSelect
+            self.didFail = didFail
         }
         
         @Binding var isPresented: Bool
         private let didCancel: (PHPickerViewController) -> ()
         private let didSelect: (ImagePickerResult) -> ()
+        private let didFail: (ImagePickerError) -> ()
         
         public func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
             var images = [UIImage]()
@@ -56,12 +58,11 @@ extension ImagePickerView {
                 if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
                     result.itemProvider.loadObject(ofClass: UIImage.self) { newImage, error in
                         if let error = error {
-                            print("Can't load image \(error.localizedDescription)")
+                            self.didFail(ImagePickerError(picker: picker, error: error))
                         } else if let image = newImage as? UIImage {
                             images.append(image)
                         }
-                        print("images.count: \(images.count)")
-                        if i >= results.count - 1 {
+                        if images.count == results.count {
                             self.isPresented = false
                             if images.count != 0 {
                                 self.didSelect(ImagePickerResult(picker: picker, images: images))
@@ -71,16 +72,7 @@ extension ImagePickerView {
                         }
                     }
                 } else {
-                    print("Can't load asset")
-                    
-                    if i >= results.count - 1 {
-                        self.isPresented = false
-                        if images.count != 0 {
-                            self.didSelect(ImagePickerResult(picker: picker, images: images))
-                        } else {
-                            self.didCancel(picker)
-                        }
-                    }
+                    self.didFail(ImagePickerError(picker: picker, error: ImagePickerViewError.cannotLoadObject))
                 }
             }
             
@@ -92,4 +84,14 @@ extension ImagePickerView {
 public struct ImagePickerResult {
     public let picker: PHPickerViewController
     public let images: [UIImage]
+}
+
+public struct ImagePickerError {
+    public let picker: PHPickerViewController
+    public let error: Error
+}
+
+public enum ImagePickerViewError: Error {
+    case cannotLoadObject
+    case failedToLoadObject
 }
