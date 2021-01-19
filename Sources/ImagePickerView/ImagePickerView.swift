@@ -2,65 +2,80 @@
 //  ImagePickerView.swift
 //  
 //
-//  Created by Alex Nagy on 13.01.2021.
+//  Created by Alex Nagy on 19.01.2021.
 //
 
 import SwiftUI
 import UIKit
+import PhotosUI
 
-@available(iOS 13.0, *)
-public struct ImagePickerView: UIViewControllerRepresentable {
+struct ImagePickerView: UIViewControllerRepresentable {
     
-    public init(allowsEditing: Bool = true, delegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate) {
-        self.allowsEditing = allowsEditing
+    public typealias UIViewControllerType = PHPickerViewController
+    
+    public init(filter: PHPickerFilter = .images, selectionLimit: Int = 0, delegate: PHPickerViewControllerDelegate) {
+        self.filter = filter
+        self.selectionLimit = selectionLimit
         self.delegate = delegate
     }
-
-    private let delegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate
-    private let allowsEditing: Bool
     
-    public func makeUIViewController(context: UIViewControllerRepresentableContext<ImagePickerView>) -> UIImagePickerController {
-        let controller = UIImagePickerController()
-        controller.allowsEditing = allowsEditing
+    private let filter: PHPickerFilter
+    private let selectionLimit: Int
+    private let delegate: PHPickerViewControllerDelegate
+    
+    public func makeUIViewController(context: Context) -> PHPickerViewController {
+        var configuration = PHPickerConfiguration(photoLibrary: PHPhotoLibrary.shared())
+        configuration.filter = filter
+        configuration.selectionLimit = selectionLimit
+        
+        let controller = PHPickerViewController(configuration: configuration)
         controller.delegate = delegate
         return controller
     }
     
-    public func updateUIViewController(_ uiViewController: UIImagePickerController, context: UIViewControllerRepresentableContext<ImagePickerView>) { }
+    public func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) { }
 }
 
-@available(iOS 13.0, *)
 extension ImagePickerView {
-    
-    public class Delegate: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    public class Delegate: NSObject, PHPickerViewControllerDelegate {
         
-        public init(isPresented: Binding<Bool>, didCancel: @escaping () -> (), didSelect: @escaping (UIImage) -> ()) {
+        public init(isPresented: Binding<Bool>, didCancel: @escaping (PHPickerViewController) -> (), didSelect: @escaping (ImagePickerResult) -> ()) {
             self._isPresented = isPresented
             self.didCancel = didCancel
             self.didSelect = didSelect
         }
         
         @Binding var isPresented: Bool
-        private let didCancel: () -> ()
-        private let didSelect: (UIImage) -> ()
+        private let didCancel: (PHPickerViewController) -> ()
+        private let didSelect: (ImagePickerResult) -> ()
         
-        public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            var selectedImage = UIImage()
-            if let editedImage = info[.editedImage] as? UIImage {
-                selectedImage = editedImage
-            } else if let originalImage = info[.originalImage] as? UIImage {
-                selectedImage = originalImage
+        public func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            var images = [UIImage]()
+            for result in results {
+                if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
+                    result.itemProvider.loadObject(ofClass: UIImage.self) { newImage, error in
+                        if let error = error {
+                            print("Can't load image \(error.localizedDescription)")
+                        } else if let image = newImage as? UIImage {
+                            images.append(image)
+                        }
+                    }
+                } else {
+                    print("Can't load asset")
+                }
             }
+            
             isPresented = false
-            didSelect(selectedImage)
-        }
-        
-        public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            isPresented = false
-            didCancel()
+            if images.count != 0 {
+                didSelect(ImagePickerResult(picker: picker, images: images))
+            } else {
+                didCancel(picker)
+            }
         }
     }
-    
 }
 
-
+public struct ImagePickerResult {
+    let picker: PHPickerViewController
+    let images: [UIImage]
+}

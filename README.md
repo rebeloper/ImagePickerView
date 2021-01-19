@@ -35,7 +35,7 @@ Here's the list of the awesome features `ImagePickerView` has:
 - [X] `didCancel` and `didSelect` delegate callbacks
 - [X] enable/disable editing
 
-## How to Use
+## 💻 How to Use
 
 Using `ImagePickerView` could not be simpler. Just check out this example where the `ImagePickerView` is presented upon a tap of a `Button`. 
 
