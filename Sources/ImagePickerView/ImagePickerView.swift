@@ -13,7 +13,7 @@ public struct ImagePickerView: UIViewControllerRepresentable {
     
     public typealias UIViewControllerType = PHPickerViewController
     
-    public init(filter: PHPickerFilter = .images, selectionLimit: Int = 0, delegate: PHPickerViewControllerDelegate) {
+    public init(filter: PHPickerFilter = .images, selectionLimit: Int = 1, delegate: PHPickerViewControllerDelegate) {
         self.filter = filter
         self.selectionLimit = selectionLimit
         self.delegate = delegate
@@ -51,7 +51,8 @@ extension ImagePickerView {
         
         public func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
             var images = [UIImage]()
-            for result in results {
+            for i in 0..<results.count {
+                let result = results[i]
                 if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
                     result.itemProvider.loadObject(ofClass: UIImage.self) { newImage, error in
                         if let error = error {
@@ -59,18 +60,31 @@ extension ImagePickerView {
                         } else if let image = newImage as? UIImage {
                             images.append(image)
                         }
+                        
+                        if i >= results.count - 1 {
+                            self.isPresented = false
+                            if images.count != 0 {
+                                self.didSelect(ImagePickerResult(picker: picker, images: images))
+                            } else {
+                                self.didCancel(picker)
+                            }
+                        }
                     }
                 } else {
                     print("Can't load asset")
+                    
+                    if i >= results.count - 1 {
+                        self.isPresented = false
+                        if images.count != 0 {
+                            self.didSelect(ImagePickerResult(picker: picker, images: images))
+                        } else {
+                            self.didCancel(picker)
+                        }
+                    }
                 }
             }
             
-            isPresented = false
-            if images.count != 0 {
-                didSelect(ImagePickerResult(picker: picker, images: images))
-            } else {
-                didCancel(picker)
-            }
+            
         }
     }
 }
