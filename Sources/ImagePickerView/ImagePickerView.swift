@@ -53,6 +53,7 @@ extension ImagePickerView {
         
         public func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
             if results.count == 0 {
+                self.isPresented = false
                 self.didCancel(picker)
                 return
             }
@@ -62,6 +63,7 @@ extension ImagePickerView {
                 if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
                     result.itemProvider.loadObject(ofClass: UIImage.self) { newImage, error in
                         if let error = error {
+                            self.isPresented = false
                             self.didFail(ImagePickerError(picker: picker, error: error))
                         } else if let image = newImage as? UIImage {
                             images.append(image)
@@ -76,6 +78,7 @@ extension ImagePickerView {
                         }
                     }
                 } else {
+                    self.isPresented = false
                     self.didFail(ImagePickerError(picker: picker, error: ImagePickerViewError.cannotLoadObject))
                 }
             }
