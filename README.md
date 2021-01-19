@@ -2,7 +2,7 @@
 
 ![swift v5.3](https://img.shields.io/badge/swift-v5.3-orange.svg)
 ![platform iOS](https://img.shields.io/badge/platform-iOS-blue.svg)
-![deployment target iOS 13](https://img.shields.io/badge/deployment%20target-iOS%2013-blueviolet)
+![deployment target iOS 14](https://img.shields.io/badge/deployment%20target-iOS%2014-blueviolet)
 ![YouTube tutorial](https://img.shields.io/badge/YouTube-video%20tutorial-red)
 
 **ImagePickerView** is a lightweight library which brings `PHPickerViewController` / `UIImagePickerController` to `SwiftUI`.
