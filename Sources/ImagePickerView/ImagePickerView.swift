@@ -52,6 +52,10 @@ extension ImagePickerView {
         private let didFail: (ImagePickerError) -> ()
         
         public func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            if results.count == 0 {
+                self.didCancel(picker)
+                return
+            }
             var images = [UIImage]()
             for i in 0..<results.count {
                 let result = results[i]
