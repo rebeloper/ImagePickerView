@@ -9,7 +9,7 @@ import SwiftUI
 import UIKit
 import PhotosUI
 
-struct ImagePickerView: UIViewControllerRepresentable {
+public struct ImagePickerView: UIViewControllerRepresentable {
     
     public typealias UIViewControllerType = PHPickerViewController
     
