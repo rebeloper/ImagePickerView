@@ -5,7 +5,7 @@
 ![deployment target iOS 13](https://img.shields.io/badge/deployment%20target-iOS%2013-blueviolet)
 ![YouTube tutorial](https://img.shields.io/badge/YouTube-video%20tutorial-red)
 
-**ImagePickerView** is a lightweight library which adds `UIImagePickerController` to `SwiftUI`.
+**ImagePickerView** is a lightweight library which brings `PHPickerViewController` / `UIImagePickerController` to `SwiftUI`.
 
 ## 💻 Installation
 ### 📦 Swift Package Manager
@@ -17,7 +17,7 @@ https://github.com/rebeloper/NavigationKit.git
 Download and include the `ImagePickerView` folder and files in your codebase.
 
 ### 📲 Requirements
-- iOS 13+
+- iOS 14+
 - Swift 5.3+
 
 ## 👉 Import
@@ -31,50 +31,130 @@ import ImagePickerView
 ## 🧳 Features
 
 Here's the list of the awesome features `ImagePickerView` has:
-- [X] use `UIImagePickerController` as a `View` in `SwiftUI` projects
-- [X] `didCancel` and `didSelect` delegate callbacks
-- [X] enable/disable editing
+- [X] use `PHPickerViewController` as a `View` in `SwiftUI` projects (recommended, introduced in `iOS14`)
+- [X] use `UIImagePickerController` as a `View` in `SwiftUI` projects (not-recommended; use only for single image picking and when you want to enable editing) 
+- [X] set `filter` and `selectionLimit` in `ImagePickerView`
+- [X] `didCancel`, `didSelect` and `didFail` delegate callbacks for `ImagePickerView`
+- [X] set `allowsEditing` in `UIImagePickerView`
+- [X] `didCancel` and `didSelect` delegate callbacks for `UIImagePickerView`
 
 ## 💻 How to Use
 
-Using `ImagePickerView` could not be simpler. Just check out this example where the `ImagePickerView` is presented upon a tap of a `Button`. 
+Selecting images from our iPhone library is needed when changing a profile picture, posting an update, or sharing the photo of your pet. In `UIKit` `Pre-iOS14` we would use `UIImagePickerController`, but as of `iOS14` Apple introduced `PHPickerViewController`. 
+`ImagePickerView` supports both of them:
+`UIImagePickerController` -> `UIImagePickerView`
+`PHPickerViewController` -> `ImagePickerView`
+
+Just check out these examples where the `UIImagePickerView`/`ImagePickerView` is presented upon a tap of a `Button`. 
+
+## `UIImagePickerView`
 
 ```
 import SwiftUI
 import ImagePickerView
 
-struct ImagePickerViewExampleView: View {
+struct UIImagePickerControllerContentView: View {
     
     @State var isImagePickerViewPresented = false
     @State var pickedImage: UIImage? = nil
     
     var body: some View {
-        Button {
-            isImagePickerViewPresented = true
-        } label: {
-            VStack {
-                if pickedImage == nil {
-                    Image(systemName: "camera")
-                        .font(.largeTitle)
-                        .foregroundColor(.purple)
-                } else {
-                    Image(uiImage: pickedImage!)
-                        .resizable()
-                        .frame(width: 66, height: 66)
-                        .cornerRadius(33)
+        VStack(spacing: 12) {
+            Text("UIImagePickerView").font(.largeTitle)
+            
+            Button {
+                isImagePickerViewPresented = true
+            } label: {
+                VStack {
+                    if pickedImage == nil {
+                        Image(systemName: "camera")
+                            .font(.largeTitle)
+                    } else {
+                        Image(uiImage: pickedImage!)
+                            .resizable()
+                            .frame(width: 66, height: 66)
+                            .cornerRadius(33)
+                    }
                 }
             }
-        }
-        .sheet(isPresented: $isImagePickerViewPresented) {
-            ImagePickerView(allowsEditing: true, delegate: ImagePickerView.Delegate(isPresented: $isImagePickerViewPresented, didCancel: {
-                print("Did cancel picking image")
-            }, didSelect: { (image) in
-                pickedImage = image
-            }))
+            .sheet(isPresented: $isImagePickerViewPresented) {
+                UIImagePickerView(allowsEditing: true, delegate: UIImagePickerView.Delegate(isPresented: $isImagePickerViewPresented, didCancel: { (uiImagePickerController) in
+                    print("Did Cancel: \(uiImagePickerController)")
+                }, didSelect: { (result) in
+                    let uiImagePickerController = result.picker
+                    let image = result.image
+                    print("Did Select image: \(image) from \(uiImagePickerController)")
+                    pickedImage = image
+                }))
+            }
+            
+            Spacer()
         }
     }
 }
 ```
+
+## `ImagePickerView`
+
+```
+import SwiftUI
+import ImagePickerView
+
+struct PHPickerViewControllerContentView: View {
+    
+    @State var isImagePickerViewPresented = false
+    @State var pickedImages: [UIImage]? = nil
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            Text("ImagePickerView").font(.largeTitle)
+            
+            Button {
+                isImagePickerViewPresented = true
+            } label: {
+                VStack {
+                    Image(systemName: "camera")
+                        .font(.largeTitle)
+                }
+            }
+            .sheet(isPresented: $isImagePickerViewPresented) {
+                // filter default is .images; please DO NOT CHOOSE .videos
+                // selectionLimit default is 1; set to 0 to have unlimited selection
+                ImagePickerView(filter: .any(of: [.images, .livePhotos]), selectionLimit: 0, delegate: ImagePickerView.Delegate(isPresented: $isImagePickerViewPresented, didCancel: { (phPickerViewController) in
+                    print("Did Cancel: \(phPickerViewController)")
+                }, didSelect: { (result) in
+                    let phPickerViewController = result.picker
+                    let images = result.images
+                    print("Did Select images: \(images) from \(phPickerViewController)")
+                    pickedImages = images
+                }, didFail: { (imagePickerError) in
+                    let phPickerViewController = imagePickerError.picker
+                    let error = imagePickerError.error
+                    print("Did Fail with error: \(error) in \(phPickerViewController)")
+                }))
+            }
+            
+            if pickedImages != nil {
+                ScrollView {
+                    ForEach(pickedImages!, id:\.self) { image in
+                        Image(uiImage: image)
+                            .resizable()
+                            .frame(width: 66, height: 66)
+                            .cornerRadius(33)
+                    }
+                }
+            }
+            
+            Spacer()
+        }
+    }
+}
+```
+
+## 🪁 Demo project
+
+For a comprehensive Demo project check out: 
+<a href="https://github.com/rebeloper/ImagePickerViewDemo">ImagePickerViewDemo</a>
 
 ## ✍️ Contact
 
