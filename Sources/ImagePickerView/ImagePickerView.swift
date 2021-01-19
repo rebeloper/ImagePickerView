@@ -60,7 +60,7 @@ extension ImagePickerView {
                         } else if let image = newImage as? UIImage {
                             images.append(image)
                         }
-                        
+                        print("images.count: \(images.count)")
                         if i >= results.count - 1 {
                             self.isPresented = false
                             if images.count != 0 {
