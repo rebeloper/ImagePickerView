@@ -76,6 +76,6 @@ extension ImagePickerView {
 }
 
 public struct ImagePickerResult {
-    let picker: PHPickerViewController
-    let images: [UIImage]
+    public let picker: PHPickerViewController
+    public let images: [UIImage]
 }

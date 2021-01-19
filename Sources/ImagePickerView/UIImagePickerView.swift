@@ -66,7 +66,7 @@ extension UIImagePickerView {
 }
 
 public struct UIImagePickerResult {
-    let picker: UIImagePickerController
-    let image: UIImage
+    public let picker: UIImagePickerController
+    public let image: UIImage
 }
 
