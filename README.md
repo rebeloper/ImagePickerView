@@ -3,7 +3,6 @@
 ![swift v5.3](https://img.shields.io/badge/swift-v5.3-orange.svg)
 ![platform iOS](https://img.shields.io/badge/platform-iOS-blue.svg)
 ![deployment target iOS 14](https://img.shields.io/badge/deployment%20target-iOS%2014-blueviolet)
-![YouTube tutorial](https://img.shields.io/badge/YouTube-video%20tutorial-red)
 
 **ImagePickerView** is a lightweight library which brings `PHPickerViewController` / `UIImagePickerController` to `SwiftUI`.
 
@@ -11,7 +10,7 @@
 ### 📦 Swift Package Manager
 Using <a href="https://swift.org/package-manager/" rel="nofollow">Swift Package Manager</a>, add it as a Swift Package in Xcode 11.0 or later, `select File > Swift Packages > Add Package Dependency...` and add the repository URL:
 ```
-https://github.com/rebeloper/NavigationKit.git
+https://github.com/rebeloper/ImagePickerView.git
 ```
 ### ✊ Manual Installation
 Download and include the `ImagePickerView` folder and files in your codebase.
