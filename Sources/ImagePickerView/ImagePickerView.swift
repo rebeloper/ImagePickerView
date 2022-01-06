@@ -57,7 +57,7 @@ extension ImagePickerView {
                 self.didCancel(picker)
                 return
             }
-            var images = [UIImage]()
+            var images = [ImagePickerResult.SelectedImage]()
             for i in 0..<results.count {
                 let result = results[i]
                 if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
@@ -66,7 +66,7 @@ extension ImagePickerView {
                             self.isPresented = false
                             self.didFail(ImagePickerError(picker: picker, error: error))
                         } else if let image = newImage as? UIImage {
-                            images.append(image)
+                            images.append(.init(index: i, image: image))
                         }
                         if images.count == results.count {
                             self.isPresented = false
@@ -90,7 +90,12 @@ extension ImagePickerView {
 
 public struct ImagePickerResult {
     public let picker: PHPickerViewController
-    public let images: [UIImage]
+    public let images: [SelectedImage]
+
+    public struct SelectedImage {
+        public let index: Int
+        public let image: UIImage
+    }
 }
 
 public struct ImagePickerError {
