@@ -3,6 +3,8 @@
 ![swift v5.3](https://img.shields.io/badge/swift-v5.3-orange.svg)
 ![platform iOS](https://img.shields.io/badge/platform-iOS-blue.svg)
 ![deployment target iOS 14](https://img.shields.io/badge/deployment%20target-iOS%2014-blueviolet)
+![platform macOS](https://img.shields.io/badge/platform-macOS-blue.svg)
+![deployment target macOS 13](https://img.shields.io/badge/deployment%20target-macOS%2013-brightgreen)
 
 **ImagePickerView** is a lightweight library which brings `PHPickerViewController` / `UIImagePickerController` to `SwiftUI`.
 
@@ -16,7 +18,7 @@ https://github.com/rebeloper/ImagePickerView.git
 Download and include the `ImagePickerView` folder and files in your codebase.
 
 ### 📲 Requirements
-- iOS 14+
+- iOS 14+ / macOS 13+
 - Swift 5.3+
 
 ## 👉 Import
@@ -30,8 +32,8 @@ import ImagePickerView
 ## 🧳 Features
 
 Here's the list of the awesome features `ImagePickerView` has:
-- [X] use `PHPickerViewController` as a `View` in `SwiftUI` projects (recommended, introduced in `iOS14`)
-- [X] use `UIImagePickerController` as a `View` in `SwiftUI` projects (not-recommended; use only for single image picking and when you want to enable editing) 
+- [X] use `PHPickerViewController` as a `View` in `SwiftUI` projects (recommended, introduced in `iOS14`/`macOS13`)
+- [X] use `UIImagePickerController` as a `View` in `SwiftUI` projects (iOS-only, not-recommended; use only for single image picking and when you want to enable editing) 
 - [X] set `filter` and `selectionLimit` in `ImagePickerView`
 - [X] `didCancel`, `didSelect` and `didFail` delegate callbacks for `ImagePickerView`
 - [X] set `allowsEditing` in `UIImagePickerView`
