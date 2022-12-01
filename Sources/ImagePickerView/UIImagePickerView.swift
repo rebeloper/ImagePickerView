@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+#if canImport(UIKit)
 import UIKit
 
 @available(iOS 13.0, *)
@@ -79,3 +80,4 @@ public struct UIImagePickerResult {
     public let picker: UIImagePickerController
     public let image: UIImage
 }
+#endif

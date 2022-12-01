@@ -6,12 +6,20 @@
 //
 
 import SwiftUI
-import UIKit
 import PhotosUI
 
-public struct ImagePickerView: UIViewControllerRepresentable {
+#if canImport(UIKit)
+import UIKit
+public typealias PHImage = UIImage
+#elseif canImport(AppKit)
+import AppKit
+public typealias PHImage = NSImage
+#endif
+
+
+public struct ImagePickerView: ViewControllerRepresentable {
     
-    public typealias UIViewControllerType = PHPickerViewController
+    public typealias ViewControllerType = PHPickerViewController
     
     public init(filter: PHPickerFilter = .images, selectionLimit: Int = 1, delegate: PHPickerViewControllerDelegate) {
         self.filter = filter
@@ -23,7 +31,7 @@ public struct ImagePickerView: UIViewControllerRepresentable {
     private let selectionLimit: Int
     private let delegate: PHPickerViewControllerDelegate
     
-    public func makeUIViewController(context: Context) -> PHPickerViewController {
+    public func makeViewController(context: Context) -> PHPickerViewController {
         var configuration = PHPickerConfiguration(photoLibrary: PHPhotoLibrary.shared())
         configuration.filter = filter
         configuration.selectionLimit = selectionLimit
@@ -33,7 +41,7 @@ public struct ImagePickerView: UIViewControllerRepresentable {
         return controller
     }
     
-    public func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) { }
+    public func updateViewController(_ viewController: PHPickerViewController, context: Context) { }
 }
 
 extension ImagePickerView {
@@ -60,12 +68,12 @@ extension ImagePickerView {
             var images = [ImagePickerResult.SelectedImage]()
             for i in 0..<results.count {
                 let result = results[i]
-                if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
-                    result.itemProvider.loadObject(ofClass: UIImage.self) { newImage, error in
+                if result.itemProvider.canLoadObject(ofClass: PHImage.self) {
+                    result.itemProvider.loadObject(ofClass: PHImage.self) { newImage, error in
                         if let error = error {
                             self.isPresented = false
                             self.didFail(ImagePickerError(picker: picker, error: error))
-                        } else if let image = newImage as? UIImage {
+                        } else if let image = newImage as? PHImage {
                             images.append(.init(index: i, image: image))
                         }
                         if images.count == results.count {
@@ -94,7 +102,7 @@ public struct ImagePickerResult {
 
     public struct SelectedImage {
         public let index: Int
-        public let image: UIImage
+        public let image: PHImage
     }
 }
 
